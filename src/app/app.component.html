@@ -1,0 +1,21 @@
+   <div class="playground-container" style="display: flex; height: 100vh;">
+      <nav class="sidebar" style="width: 250px; border-right: 1px solid #ddd; padding: 1rem;">
+        <h2>Modes</h2>
+        <ul style="list-style: none; padding: 0;">
+          @for (mode of modes; track mode.id) {
+            <li (click)="selectMode(mode)" 
+                [style.cursor]="'pointer'"
+                [style.padding]="'8px'"
+                [style.background]="currentMode?.id === mode.id ? '#e3f2fd' : 'transparent'">
+              {{ mode.label }}
+            </li>
+          }
+        </ul>
+      </nav>
+      
+      <main class="table-view" style="flex: 1; padding: 2rem; overflow: auto;">
+        @if (active) {
+          <superTable [config]="currentMode.config" [data]="currentMode.data"></superTable>
+        }
+      </main>
+    </div>

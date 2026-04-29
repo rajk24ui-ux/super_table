@@ -1,0 +1,62 @@
+<div class="toolbar">
+  <button (click)="exportCSV()" class="p-button-success">
+    <i class="pi pi-file-excel"></i> Export CSV
+  </button>
+</div>
+<p-table 
+  [value]="data" 
+  [columns]="config.columns"
+  [paginator]="config.paginator ?? false" 
+  [rows]="config.rows ?? 10"
+  [totalRecords]="config.totalRecords ?? 0"
+  [sortMode]="config.sortMode ?? 'single'"
+  [selectionMode]="(config.selectionMode === 'single' || config.selectionMode === 'multiple') ? config.selectionMode : null"
+  [dataKey]="config.dataKey ?? 'id'"
+  [resizableColumns]="config.resizableColumns ?? false"
+  [columnResizeMode]="config.columnResizeMode ?? 'fit'"
+  [reorderableColumns]="config.reorderableColumns ?? false"
+  [scrollable]="config.scrollable ?? false"
+  [scrollHeight]="config.scrollHeight ?? 'flex'"
+  [rowGroupMode]="config.rowGroupMode ?? undefined"
+  [groupRowsBy]="config.groupRowsBy ?? ''"
+  [exportFilename]="config.exportFilename ?? 'download'"
+  [csvSeparator]="','"
+  #dt>
+  
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      @if (config.rowExpansion) { <th style="width: 3rem"></th> }
+      @if (config.selectionMode === 'checkbox') { <th style="width: 3rem"><p-tableHeaderCheckbox /></th> }
+      
+      @for (col of columns; track col.field) {
+        <th [pSortableColumn]="col.sortable ? col.field : null" 
+            pResizableColumn pReorderableColumn 
+            [style.width]="col.width">
+          {{col.header}}
+          @if (col.sortable) { <p-sortIcon [field]="col.field" /> }
+        </th>
+      }
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
+    <tr [pEditableRow]="rowData" [pContextMenuRow]="rowData">
+      @if (config.rowExpansion) {
+        <td><p-button type="button" [pRowToggler]="rowData" icon="pi pi-chevron-right" /></td>
+      }
+      @if (config.selectionMode === 'checkbox') {
+        <td><p-tableCheckbox [value]="rowData" /></td>
+      }
+      @for (col of columns; track col.field) {
+        <td>{{ rowData[col.field] }}</td>
+      }
+    </tr>
+  </ng-template>
+
+  <!-- Row Expansion Template -->
+  @if (config.rowExpansion) {
+    <ng-template pTemplate="rowexpansion" let-rowData>
+      <tr><td [attr.colspan]="config.columns.length + 1">Detail for {{rowData[config.dataKey!]}}</td></tr>
+    </ng-template>
+  }
+</p-table>
