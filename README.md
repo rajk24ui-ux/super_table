@@ -1,4 +1,4 @@
-A reusable, configuration-driven data table component built with Angular 18.2 and PrimeNG 19. This project demonstrates a "Wrapper Component" architecture where a complex UI library is abstracted into a simple, declarative API.
+A reusable, configuration-driven data table component built with Angular 18.2 and PrimeNG 18. This project demonstrates a "Wrapper Component" architecture where a complex UI library is abstracted into a simple, declarative API.
 
 Overview
 
@@ -22,7 +22,7 @@ Styling: SCSS with design tokens
 ├── src/
 │   ├── app/                # Localhost playground app
 │   │   ├── app.component.ts # Mode Switcher & Sample Data
-│   │   └── app.config.ts    # PrimeNG v19 Configuration
+│   │   └── app.config.ts    # PrimeNG v18 Configuration
 │   └── project/            # Reusable Library Area
 │       └── superTable/
 │           ├── super-table.component.ts
