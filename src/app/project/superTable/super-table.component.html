@@ -3,60 +3,107 @@
     <i class="pi pi-file-excel"></i> Export CSV
   </button>
 </div>
-<p-table 
-  [value]="data" 
-  [columns]="config.columns"
-  [paginator]="config.paginator ?? false" 
-  [rows]="config.rows ?? 10"
-  [totalRecords]="config.totalRecords ?? 0"
-  [sortMode]="config.sortMode ?? 'single'"
+<p-table [value]="data" [columns]="normalColumns" [paginator]="config.paginator ?? false" [rows]="config.rows ?? 10"
+  [totalRecords]="config.totalRecords ?? 0" [sortMode]="config.sortMode ?? 'single'"
   [selectionMode]="(config.selectionMode === 'single' || config.selectionMode === 'multiple') ? config.selectionMode : null"
-  [dataKey]="config.dataKey ?? 'id'"
-  [resizableColumns]="config.resizableColumns ?? false"
-  [columnResizeMode]="config.columnResizeMode ?? 'fit'"
-  [reorderableColumns]="config.reorderableColumns ?? false"
-  [scrollable]="config.scrollable ?? false"
-  [scrollHeight]="config.scrollHeight ?? 'flex'"
-  [rowGroupMode]="config.rowGroupMode ?? undefined"
-  [groupRowsBy]="config.groupRowsBy ?? ''"
-  [exportFilename]="config.exportFilename ?? 'download'"
-  [csvSeparator]="','"
-  #dt>
-  
+  [dataKey]="config.dataKey ?? 'id'" [resizableColumns]="config.resizableColumns ?? false"
+  [columnResizeMode]="config.columnResizeMode ?? 'fit'" [reorderableColumns]="config.reorderableColumns ?? false"
+  [scrollable]="config.scrollable ?? false" [scrollHeight]="config.scrollHeight ?? 'flex'"
+  [rowGroupMode]="config.rowGroupMode ?? undefined" [groupRowsBy]="config.groupRowsBy ?? ''"
+  [exportFilename]="config.exportFilename ?? 'download'" [(selection)]="selectedRows" [csvSeparator]="','"
+  [editMode]="config.editMode ?? 'cell'" [frozenValue]="config.frozenValue ?? []" [size]="config.size ?? 'small'"
+  [showGridlines]="config.showGridlines ?? false" (onColReorder)="onColReorder($event)"
+  [stripedRows]="config.stripedRows ?? false" [expandedRowKeys]="expandedRows" (onRowExpand)="onRowExpand($event)"
+  (onRowCollapse)="onRowCollapse($event)" [rowExpandMode]="'single'" #dt>
+
   <ng-template pTemplate="header" let-columns>
     <tr>
       @if (config.rowExpansion) { <th style="width: 3rem"></th> }
-      @if (config.selectionMode === 'checkbox') { <th style="width: 3rem"><p-tableHeaderCheckbox /></th> }
-      
+      @if (config.selectionMode === 'multiple') {
+      <th style="width: 3rem">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
+      } @else if (config.selectionMode === 'single') {
+      <th style="width: 3rem"></th>
+      }
+
+
       @for (col of columns; track col.field) {
-        <th [pSortableColumn]="col.sortable ? col.field : null" 
-            pResizableColumn pReorderableColumn 
-            [style.width]="col.width">
-          {{col.header}}
-          @if (col.sortable) { <p-sortIcon [field]="col.field" /> }
-        </th>
+      <th [pSortableColumn]="col.sortable ? col.field : null" pResizableColumn pReorderableColumn
+        [style.width]="col.width">
+        {{col.header}}
+        @if (col.sortable) { <p-sortIcon [field]="col.field" /> }
+        @if (col.filter) {
+        <p-columnFilter [field]="col.field" [type]="getFilterType(col.type)" display="menu">
+        </p-columnFilter>
+        }
+      </th>
       }
     </tr>
+
   </ng-template>
 
   <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
-    <tr [pEditableRow]="rowData" [pContextMenuRow]="rowData">
+    <tr [pEditableRow]="rowData" [pContextMenuRow]="rowData" [pSelectableRow]="rowData"
+      [pSelectableRowDisabled]="false">
       @if (config.rowExpansion) {
-        <td><p-button type="button" [pRowToggler]="rowData" icon="pi pi-chevron-right" /></td>
+      <td>
+        <button pButton type="button" [pRowToggler]="rowData"
+          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" class="p-button-text p-button-sm">
+        </button>
+      </td>
       }
-      @if (config.selectionMode === 'checkbox') {
-        <td><p-tableCheckbox [value]="rowData" /></td>
+      @if (config.selectionMode === 'multiple') {
+      <td>
+        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+      </td>
+      }
+
+      <!-- SINGLE → Radio -->
+      @if (config.selectionMode === 'single') {
+      <td>
+        <p-tableRadioButton [value]="rowData"></p-tableRadioButton>
+      </td>
       }
       @for (col of columns; track col.field) {
-        <td>{{ rowData[col.field] }}</td>
+      <td [pEditableColumn]="col.editable ? rowData : null" [pEditableColumnField]="col.field">
+        <p-cellEditor *ngIf="col.editable">
+
+          <!-- INPUT -->
+          <ng-template pTemplate="input">
+            <input *ngIf="col.type === 'text' || !col.type" pInputText [(ngModel)]="rowData[col.field]" />
+
+            <input *ngIf="col.type === 'numeric'" type="number" pInputText [(ngModel)]="rowData[col.field]" />
+
+            <input *ngIf="col.type === 'date'" type="date" [(ngModel)]="rowData[col.field]" />
+          </ng-template>
+
+          <!-- OUTPUT -->
+          <ng-template pTemplate="output">
+            {{ rowData[col.field] }}
+          </ng-template>
+
+        </p-cellEditor>
+
+        <!-- Non-editable -->
+        <span *ngIf="!col.editable">
+          {{ rowData[col.field] }}
+        </span>
+      </td>
       }
     </tr>
   </ng-template>
 
   <!-- Row Expansion Template -->
   @if (config.rowExpansion) {
-    <ng-template pTemplate="rowexpansion" let-rowData>
-      <tr><td [attr.colspan]="config.columns.length + 1">Detail for {{rowData[config.dataKey!]}}</td></tr>
-    </ng-template>
+  <ng-template pTemplate="rowexpansion" let-rowData>
+    <tr>
+      <td [attr.colspan]="
+    config.columns.length 
+    + (config.rowExpansion ? 1 : 0)
+    + (config.selectionMode ? 1 : 0)
+  ">Detail for {{rowData[config.dataKey!]}}</td>
+    </tr>
+  </ng-template>
   }
 </p-table>

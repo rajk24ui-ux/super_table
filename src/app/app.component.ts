@@ -45,16 +45,28 @@ export class AppComponent implements OnInit {
       ],
       config: {
         columns: [
-          { field: 'name', header: 'Name', type: 'text', sortable: true, },
-          { field: 'country', header: 'Country', type: 'text' }, // Use logic in template for flag
+          { field: 'name', header: 'Name', type: 'text', sortable: true, filter: true },
+          { field: 'country', header: 'Country', type: 'text', frozen: false, editable: true }, // Use logic in template for flag
           { field: 'company', header: 'Company', type: 'text' },
           { field: 'representative', header: 'Representative', type: 'text' }, // Use logic for avatar
           { field: 'status', header: 'Status', type: 'status' },
           { field: 'activity', header: 'Activity', type: 'numeric' }
         ],
         paginator: true,
-        rows: 10
-      }
+        rows: 10,
+        selectionMode: 'multiple',
+        dataKey: 'id',
+        editMode: 'cell',
+        reorderableColumns: true,
+        resizableColumns: true,
+        columnResizeMode: 'fit',
+        size: 'small',
+        showGridlines: true,
+        stripedRows: true,
+        rowexpansion: true,
+        frozenValue: [{ id: 1000, name: 'James Butt', country: 'Algeria', company: 'Benton, John B Jr', representative: 'Ioni Bowcher', status: 'unqualified', verified: true, activity: 17 }]
+      },
+  
     },
     {
       id: 'products',

@@ -15,7 +15,7 @@ export interface TableConfig {
   dataKey?: string;
   // Advanced Features
   resizableColumns?: boolean;
-  columnResizeMode?: 'fit' | 'expand';
+  columnResizeMode?: 'fit' | 'expand' | 'scroll';
   reorderableColumns?: boolean;
   reorderableRows?: boolean;
   rowExpansion?: boolean;
@@ -29,6 +29,7 @@ export interface TableConfig {
   // Context & Export
   contextMenu?: boolean;
   exportFilename?: string;
+   editMode?: 'cell' | 'row';
 }
 
 export interface ColumnDef {
@@ -39,4 +40,5 @@ export interface ColumnDef {
   filter?: boolean;
   width?: string;
   frozen?: boolean;
+  editable?: boolean;
 }
